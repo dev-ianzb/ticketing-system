@@ -1,50 +1,60 @@
 import { useState } from "react";
-import api from "../api/axios";
+import { Link } from "react-router-dom";
+import { supabase } from "../lib/supabase";
+import { useNavigate } from "react-router-dom";
 
-export default function Login() {
+function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const handleLogin = async () => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
-    try {
-      const res = await api.post("/login", {
-        email,
-        password,
-      });
-
-      // store token
-      localStorage.setItem("token", res.data.token);
-
-      alert("Login successful!");
-      console.log(res.data);
-    } catch (err) {
-      alert(err.response?.data?.message || "Login failed");
+    if (error) {
+      alert(error.message);
+      return;
     }
+
+    console.log(data);
+    alert("Login successful!");
+    navigate("/dashboard");
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "100px auto" }}>
-      <h2>Login</h2>
+    <div style={{ padding: "2rem" }}>
+      <h1>Login</h1>
 
-      <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: "100%", marginBottom: 10 }}
-        />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
 
-        <input
-          type="password"
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: "100%", marginBottom: 10 }}
-        />
+      <br />
+      <br />
 
-        <button type="submit">Login</button>
-      </form>
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <br />
+      <br />
+
+      <button onClick={handleLogin}>Login</button>
+
+      <br />
+      <br />
+
+      <Link to="/register">Don’t have an account? Register</Link>
     </div>
   );
 }
+
+export default Login;

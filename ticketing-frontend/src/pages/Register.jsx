@@ -1,59 +1,78 @@
 import { useState } from "react";
-import api from "../api/axios";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
-export default function Register() {
+function Register() {
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const handleRegister = async () => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name,
+        },
+      },
+    });
 
-    try {
-      const res = await api.post("/register", {
-        name,
-        email,
-        password,
-      });
-
-      // save token automatically after register
-      localStorage.setItem("token", res.data.token);
-
-      alert("Registered successfully!");
-      console.log(res.data);
-    } catch (err) {
-      alert(err.response?.data?.message || "Registration failed");
+    if (error) {
+      alert(error.message);
+      return;
     }
+
+    console.log(data);
+    alert("Registered successfully!");
+
+    navigate("/");
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "100px auto" }}>
-      <h2>Register</h2>
+    <div style={{ padding: "2rem" }}>
+      <h1>Register</h1>
 
-      <form onSubmit={handleRegister}>
-        <input
-          type="text"
-          placeholder="Name"
-          onChange={(e) => setName(e.target.value)}
-          style={{ width: "100%", marginBottom: 10 }}
-        />
+      <input
+        type="text"
+        placeholder="Full Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
 
-        <input
-          type="email"
-          placeholder="Email"
-          onChange={(e) => setEmail(e.target.value)}
-          style={{ width: "100%", marginBottom: 10 }}
-        />
+      <br />
+      <br />
 
-        <input
-          type="password"
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-          style={{ width: "100%", marginBottom: 10 }}
-        />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
 
-        <button type="submit">Register</button>
-      </form>
+      <br />
+      <br />
+
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+
+      <br />
+      <br />
+
+      <button onClick={handleRegister}>Register</button>
+
+      <br />
+      <br />
+
+      <Link to="/">Already have an account? Login</Link>
     </div>
   );
 }
+
+export default Register;
