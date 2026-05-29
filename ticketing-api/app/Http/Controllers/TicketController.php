@@ -13,20 +13,9 @@ class TicketController extends Controller
     $query = Ticket::query()
         ->where('created_by', $request->user_id);
 
-    if ($request->status) {
-        $query->where('status', $request->status);
-    }
-
-    if ($request->priority) {
-        $query->where('priority', $request->priority);
-    }
-
-    if ($request->category) {
-        $query->where('category', $request->category);
-    
 
     return $query->latest()->get();
-}
+
     }
 
     public function store(Request $request)

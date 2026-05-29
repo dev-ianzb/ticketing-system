@@ -1,60 +1,66 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
-function Login() {
+export default function Login() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
-  const handleLogin = async () => {
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    setLoading(true);
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+
+    setLoading(false);
 
     if (error) {
       alert(error.message);
       return;
     }
 
-    console.log(data);
-    alert("Login successful!");
+    console.log("LOGIN SUCCESS:", data);
+
     navigate("/dashboard");
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Login</h1>
+    <div style={{ padding: "20px" }}>
+      <h2>Login</h2>
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      <form onSubmit={handleLogin}>
+        <input
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      <br />
-      <br />
+        <br />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
-      <br />
-      <br />
+        <br />
 
-      <button onClick={handleLogin}>Login</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
+      </form>
 
-      <br />
-      <br />
-
-      <Link to="/register">Don’t have an account? Register</Link>
+      <p style={{ marginTop: "10px" }}>
+        No account? <Link to="/register">Register</Link>
+      </p>
     </div>
   );
 }
-
-export default Login;

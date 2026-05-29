@@ -10,126 +10,40 @@ export default function Dashboard() {
 
   const [tickets, setTickets] = useState([]);
 
-  const [status, setStatus] = useState("");
-  const [priority, setPriority] = useState("");
-  const [category, setCategory] = useState("");
-
-  // FETCH TICKETS
   const fetchTickets = async () => {
-    const session = await supabase.auth.getSession();
+    const { data } = await supabase.auth.getSession();
 
-    const token = session.data.session.access_token;
+    const token = data?.session?.access_token;
 
-    const params = new URLSearchParams();
+    if (!token) return;
 
-    if (status) params.append("status", status);
-
-    if (priority) params.append("priority", priority);
-
-    if (category) params.append("category", category);
-
-    const res = await fetch(
-      `http://localhost:8000/api/tickets?${params.toString()}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const res = await fetch("http://localhost:8000/api/tickets", {
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
-    );
+    });
 
-    const data = await res.json();
+    const text = await res.text();
+    const dataJson = text ? JSON.parse(text) : [];
 
-    setTickets(data);
+    setTickets(dataJson);
   };
 
-  // LOGOUT
   const handleLogout = async () => {
     await supabase.auth.signOut();
-
     navigate("/");
   };
 
-  // AUTO REFRESH WHEN FILTERS CHANGE
   useEffect(() => {
     fetchTickets();
-  }, [status, priority, category]);
+  }, []);
 
   return (
     <div style={{ padding: "20px" }}>
       {/* HEADER */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
         <h2>Dashboard</h2>
-
         <button onClick={handleLogout}>Logout</button>
-      </div>
-
-      {/* FILTERS */}
-      <div
-        style={{
-          marginBottom: "20px",
-          display: "flex",
-          gap: "10px",
-          flexWrap: "wrap",
-        }}
-      >
-        {/* STATUS */}
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">All Status</option>
-
-          <option value="open">Open</option>
-
-          <option value="resolved">Resolved</option>
-
-          <option value="removed">Removed</option>
-        </select>
-
-        {/* PRIORITY */}
-        <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-          <option value="">All Priority</option>
-
-          <option value="low">Low</option>
-
-          <option value="medium">Medium</option>
-
-          <option value="high">High</option>
-        </select>
-
-        {/* CATEGORY */}
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">All Category</option>
-
-          <option value="bug">Bug</option>
-
-          <option value="hardware">Hardware</option>
-
-          <option value="software">Software</option>
-
-          <option value="network">Network</option>
-
-          <option value="account">Account Access</option>
-
-          <option value="email">Email Issue</option>
-
-          <option value="other">Other</option>
-        </select>
-
-        {/* RESET */}
-        <button
-          onClick={() => {
-            setStatus("");
-            setPriority("");
-            setCategory("");
-          }}
-        >
-          Reset Filters
-        </button>
       </div>
 
       {/* CREATE TICKET */}
@@ -137,7 +51,7 @@ export default function Dashboard() {
 
       <hr />
 
-      {/* TICKET LIST */}
+      {/* TICKETS */}
       <div>
         {tickets.length === 0 ? (
           <p>No tickets found.</p>
