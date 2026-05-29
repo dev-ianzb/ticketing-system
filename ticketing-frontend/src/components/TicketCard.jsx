@@ -4,22 +4,22 @@ import { useNavigate } from "react-router-dom";
 export default function TicketCard({ ticket, refresh }) {
   const navigate = useNavigate();
 
-  const handleDelete = async (e) => {
-    // prevents card click when button clicked
-    e.stopPropagation();
+  // const handleDelete = async (e) => {
+  //   // prevents card click when button clicked
+  //   e.stopPropagation();
 
-    const session = await supabase.auth.getSession();
-    const token = session.data.session.access_token;
+  //   const session = await supabase.auth.getSession();
+  //   const token = session.data.session.access_token;
 
-    await fetch(`http://localhost:8000/api/tickets/${ticket.id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  //   await fetch(`http://localhost:8000/api/tickets/${ticket.id}`, {
+  //     method: "DELETE",
+  //     headers: {
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   });
 
-    refresh();
-  };
+  //   refresh();
+  // };
 
   return (
     <div
@@ -39,7 +39,7 @@ export default function TicketCard({ ticket, refresh }) {
 
       <p>Priority: {ticket.priority}</p>
 
-      <button onClick={handleDelete}>Close Ticket</button>
+      {/* <button onClick={handleDelete}>Close Ticket</button> */}
     </div>
   );
 }
