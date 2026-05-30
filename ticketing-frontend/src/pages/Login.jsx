@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useNavigate, Link } from "react-router-dom";
+import "./Login.css";
+
+// import your logo image
+import logo from "../assets/lspu_logo.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -32,35 +36,40 @@ export default function Login() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Login</h2>
+    <div className="login-container">
+      <div className="login-card">
+      <img src={logo} alt="Logo" className="login-logo" />
 
-      <form onSubmit={handleLogin}>
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <h1 className="system-title">
+        IT Ticketing & Support Management
+      </h1>
 
-        <br />
+      <h2>Welcome Back</h2>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <form onSubmit={handleLogin} className="login-form">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <br />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
 
-      <p style={{ marginTop: "10px" }}>
-        No account? <Link to="/register">Register</Link>
-      </p>
+        <p className="register-text">
+          No account? <Link to="/register">Register</Link>
+        </p>
+      </div>
     </div>
   );
 }

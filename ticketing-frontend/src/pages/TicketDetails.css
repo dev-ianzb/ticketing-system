@@ -1,0 +1,164 @@
+* {
+  box-sizing: border-box;
+}
+
+.ticket-details-container {
+  min-height: 100vh;
+  padding: 30px;
+  background: #f9fafb;
+  font-family: Arial, sans-serif;
+}
+
+.loading {
+  padding: 30px;
+}
+
+/* BACK BUTTON */
+.back-btn {
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 25px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.back-btn:hover {
+  background: #1d4ed8;
+}
+
+/* MAIN CARD */
+.ticket-card-details {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  margin-bottom: 25px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.ticket-card-details h1 {
+  margin-bottom: 15px;
+  color: #111827;
+}
+
+.ticket-description {
+  color: #4b5563;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+/* INFO GRID */
+.ticket-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+.ticket-info-grid div {
+  background: #f3f4f6;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.ticket-info-grid span {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.ticket-info-grid p {
+  margin-top: 5px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* ADMIN PANEL */
+.admin-panel,
+.comments-section,
+.add-comment-box,
+.assign-box {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  margin-bottom: 25px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.admin-panel h2,
+.comments-section h2,
+.add-comment-box h2 {
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+/* FORM */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #374151;
+  font-weight: 600;
+}
+
+.form-group select,
+.add-comment-box textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  font-size: 14px;
+}
+
+.form-group select:focus,
+.add-comment-box textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.add-comment-box textarea {
+  min-height: 120px;
+  resize: vertical;
+  margin-bottom: 15px;
+}
+
+/* BUTTON */
+.primary-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 13px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.primary-btn:hover {
+  background: #1d4ed8;
+}
+
+/* COMMENTS */
+.comment-card {
+  border: 1px solid #e5e7eb;
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  background: #f9fafb;
+}
+
+.comment-card p {
+  margin-bottom: 10px;
+  color: #111827;
+}
+
+.comment-card small {
+  color: #6b7280;
+}

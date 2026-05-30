@@ -1,0 +1,112 @@
+* {
+  box-sizing: border-box;
+}
+
+.ticket-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 22px;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.ticket-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* HEADER */
+.ticket-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.ticket-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ticket-card-logo {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+}
+
+.ticket-card-header h3 {
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.ticket-id {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* STATUS */
+.status-badge {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* STATUS COLORS */
+.status-badge.open {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-badge.in_progress {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status-badge.resolved {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+/* DESCRIPTION */
+.ticket-description {
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+
+/* FOOTER */
+.ticket-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ticket-info span {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 5px;
+}
+
+.ticket-info p {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* PRIORITY */
+.priority.low {
+  color: #15803d;
+}
+
+.priority.medium {
+  color: #b45309;
+}
+
+.priority.high {
+  color: #dc2626;
+}

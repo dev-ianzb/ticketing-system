@@ -1,8 +1,17 @@
-import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router-dom";
 
-export default function TicketCard({ ticket, refresh, role }) {
+import logo from "../assets/lspu_logo.png";
+
+import "./TicketCard.css";
+
+export default function TicketCard({
+  ticket,
+  refresh,
+  role,
+}) {
   const navigate = useNavigate();
+
+
 
   // const handleDelete = async (e) => {
   //   e.stopPropagation();
@@ -22,21 +31,59 @@ export default function TicketCard({ ticket, refresh, role }) {
 
   return (
     <div
-      onClick={() => navigate(`/tickets/${ticket.id}`)}
-      style={{
-        border: "1px solid #ccc",
-        margin: "10px",
-        padding: "10px",
-        cursor: "pointer",
-      }}
+      className="ticket-card"
+      onClick={() =>
+        navigate(`/tickets/${ticket.id}`)
+      }
     >
-      <h3>{ticket.title}</h3>
+      {/* HEADER */}
+      <div className="ticket-card-header">
+        <div className="ticket-card-header-left">
+          <img
+            src={logo}
+            alt="Logo"
+            className="ticket-card-logo"
+          />
 
-      <p>{ticket.description}</p>
+          <div>
+            <h3>{ticket.title}</h3>
 
-      <p>Status: {ticket.status}</p>
+            <span className="ticket-id">
+              Ticket #{ticket.id}
+            </span>
+          </div>
+        </div>
 
-      <p>Priority: {ticket.priority}</p>
+        <div
+          className={`status-badge ${ticket.status}`}
+        >
+          {ticket.status}
+        </div>
+      </div>
+
+      {/* DESCRIPTION */}
+      <p className="ticket-description">
+        {ticket.description}
+      </p>
+
+      {/* FOOTER */}
+      <div className="ticket-card-footer">
+        <div className="ticket-info">
+          <span>Priority</span>
+
+          <p
+            className={`priority ${ticket.priority}`}
+          >
+            {ticket.priority}
+          </p>
+        </div>
+
+        <div className="ticket-info">
+          <span>Category</span>
+
+          <p>{ticket.category || "N/A"}</p>
+        </div>
+      </div>
     </div>
   );
 }

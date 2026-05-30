@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 
+import "./TicketForm.css";
+
 export default function TicketForm({ onCreated }) {
   const [title, setTitle] = useState("");
-
   const [description, setDescription] = useState("");
-
   const [priority, setPriority] = useState("low");
-
   const [category, setCategory] = useState("");
 
   const handleSubmit = async (e) => {
@@ -40,50 +39,61 @@ export default function TicketForm({ onCreated }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>Create Ticket</h3>
-      <input
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-      <br />
-      <textarea
-        placeholder="Description"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <br />
-      <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-        <option value="low">Low</option>
+    <div className="ticket-form-container">
+      <form onSubmit={handleSubmit} className="ticket-form">
+        <h3>Create Ticket</h3>
 
-        <option value="medium">Medium</option>
+        <input
+          type="text"
+          placeholder="Ticket Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-        <option value="high">High</option>
-      </select>
-      <br />
-      {/* CATEGORY */}
-      <select value={category} onChange={(e) => setCategory(e.target.value)}>
-        <option value="">Select Category</option>
+        <textarea
+          placeholder="Describe the issue..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-        <option value="bug">Bug</option>
+        <div className="ticket-form-row">
+          <select
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+          >
+            <option value="low">Low Priority</option>
 
-        <option value="hardware">Hardware</option>
+            <option value="medium">Medium Priority</option>
 
-        <option value="software">Software</option>
+            <option value="high">High Priority</option>
+          </select>
 
-        <option value="network">Network</option>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="">Select Category</option>
 
-        <option value="account">Account Access</option>
+            <option value="bug">Bug</option>
 
-        <option value="email">Email Issue</option>
+            <option value="hardware">Hardware</option>
 
-        <option value="other">Other</option>
-      </select>
-      <br />
-      <button type="submit" disabled={!category}>
-        Create
-      </button>{" "}
-    </form>
+            <option value="software">Software</option>
+
+            <option value="network">Network</option>
+
+            <option value="account">Account Access</option>
+
+            <option value="email">Email Issue</option>
+
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <button type="submit" disabled={!category}>
+          Create Ticket
+        </button>
+      </form>
+    </div>
   );
 }

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
+import "./TicketDetails.css";
+
 export default function TicketDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -12,20 +14,16 @@ export default function TicketDetails() {
 
   const [role, setRole] = useState(null);
 
-  // EDIT STATES
   const [status, setStatus] = useState("");
   const [priority, setPriority] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
 
-  // IT STAFF LIST
   const [staff, setStaff] = useState([]);
 
-  // -------------------------
-  // LOAD ROLE
-  // -------------------------
   useEffect(() => {
     const loadRole = async () => {
       const { data } = await supabase.auth.getUser();
+
       const userRole = data.user?.user_metadata?.role || "user";
 
       setRole(userRole);
@@ -34,14 +32,12 @@ export default function TicketDetails() {
     loadRole();
   }, []);
 
-  // -------------------------
-  // LOAD IT STAFF (ADMIN ONLY)
-  // -------------------------
   useEffect(() => {
     if (role !== "admin") return;
 
     const fetchStaff = async () => {
       const session = await supabase.auth.getSession();
+
       const token = session.data.session.access_token;
 
       const res = await fetch("http://localhost:8000/api/users/it-staff", {
@@ -51,24 +47,26 @@ export default function TicketDetails() {
       });
 
       const data = await res.json();
+
       setStaff(data);
     };
 
     fetchStaff();
   }, [role]);
-  console.log("STAFF LIST:", staff);
-  // -------------------------
-  // FETCH TICKET + COMMENTS
-  // -------------------------
+
   const fetchTicket = async () => {
     const session = await supabase.auth.getSession();
+
     const token = session.data.session.access_token;
 
-    const ticketRes = await fetch(`http://localhost:8000/api/tickets/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const ticketRes = await fetch(
+      `http://localhost:8000/api/tickets/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     const ticketData = await ticketRes.json();
 
@@ -88,6 +86,7 @@ export default function TicketDetails() {
     );
 
     const commentsData = await commentsRes.json();
+
     setComments(commentsData);
   };
 
@@ -95,11 +94,9 @@ export default function TicketDetails() {
     fetchTicket();
   }, []);
 
-  // -------------------------
-  // ADD COMMENT
-  // -------------------------
   const handleAddComment = async () => {
     const session = await supabase.auth.getSession();
+
     const token = session.data.session.access_token;
 
     await fetch(`http://localhost:8000/api/tickets/${id}/comments`, {
@@ -108,18 +105,19 @@ export default function TicketDetails() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ body: commentBody }),
+      body: JSON.stringify({
+        body: commentBody,
+      }),
     });
 
     setCommentBody("");
+
     fetchTicket();
   };
 
-  // -------------------------
-  // UPDATE TICKET
-  // -------------------------
   const handleUpdateTicket = async () => {
     const session = await supabase.auth.getSession();
+
     const token = session.data.session.access_token;
 
     await fetch(`http://localhost:8000/api/tickets/${id}`, {
@@ -136,17 +134,17 @@ export default function TicketDetails() {
     });
 
     alert("Ticket updated");
+
     fetchTicket();
   };
 
-  // -------------------------
-  // IT STAFF SELF-ASSIGN
-  // -------------------------
   const assignToMe = async () => {
     const session = await supabase.auth.getSession();
+
     const token = session.data.session.access_token;
 
     const user = await supabase.auth.getUser();
+
     const myId = user.data.user.id;
 
     await fetch(`http://localhost:8000/api/tickets/${id}`, {
@@ -164,61 +162,86 @@ export default function TicketDetails() {
     fetchTicket();
   };
 
-  if (!ticket) return <p>Loading...</p>;
+  if (!ticket) return <p className="loading">Loading...</p>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      {/* BACK */}
-      <button onClick={() => navigate("/dashboard")}>← Back</button>
+    <div className="ticket-details-container">
+      <button
+        className="back-btn"
+        onClick={() => navigate("/dashboard")}
+      >
+        ← Back to Dashboard
+      </button>
 
-      <hr />
+      {/* TICKET CARD */}
+      <div className="ticket-card-details">
+        <h1>{ticket.title}</h1>
 
-      {/* TICKET INFO */}
-      <h2>{ticket.title}</h2>
-      <p>{ticket.description}</p>
+        <p className="ticket-description">
+          {ticket.description}
+        </p>
 
-      <p>Status: {ticket.status}</p>
-      <p>Priority: {ticket.priority}</p>
-      <p>Category: {ticket.category}</p>
-      <p>Assigned To: {ticket.assigned_to || "Unassigned"}</p>
-
-      <hr />
-
-      {/* ADMIN PANEL ONLY */}
-      {role === "admin" && (
-        <div style={{ border: "1px solid #ccc", padding: 15 }}>
-          <h3>Admin Controls</h3>
-
-          {/* STATUS */}
+        <div className="ticket-info-grid">
           <div>
-            <p>Status</p>
-            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+            <span>Status</span>
+            <p>{ticket.status}</p>
+          </div>
+
+          <div>
+            <span>Priority</span>
+            <p>{ticket.priority}</p>
+          </div>
+
+          <div>
+            <span>Category</span>
+            <p>{ticket.category}</p>
+          </div>
+
+          <div>
+            <span>Assigned To</span>
+            <p>{ticket.assigned_to || "Unassigned"}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ADMIN CONTROLS */}
+      {role === "admin" && (
+        <div className="admin-panel">
+          <h2>Admin Controls</h2>
+
+          <div className="form-group">
+            <label>Status</label>
+
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               <option value="open">Open</option>
+
               <option value="in_progress">In Progress</option>
+
               <option value="resolved">Resolved</option>
             </select>
           </div>
 
-          <br />
+          <div className="form-group">
+            <label>Priority</label>
 
-          {/* PRIORITY */}
-          <div>
-            <p>Priority</p>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
             >
               <option value="low">Low</option>
+
               <option value="medium">Medium</option>
+
               <option value="high">High</option>
             </select>
           </div>
 
-          <br />
+          <div className="form-group">
+            <label>Assign To</label>
 
-          {/* ASSIGN DROPDOWN */}
-          <div>
-            <p>Assign To</p>
             <select
               value={assignedTo}
               onChange={(e) => setAssignedTo(e.target.value)}
@@ -233,51 +256,58 @@ export default function TicketDetails() {
             </select>
           </div>
 
-          <br />
-
-          <button onClick={handleUpdateTicket}>Save Changes</button>
+          <button
+            className="primary-btn"
+            onClick={handleUpdateTicket}
+          >
+            Save Changes
+          </button>
         </div>
       )}
 
-      {/* IT STAFF SELF ASSIGN */}
+      {/* IT STAFF */}
       {role === "it_staff" && (
-        <div style={{ marginTop: 10 }}>
-          <button onClick={assignToMe}>Assign to Me</button>
+        <div className="assign-box">
+          <button className="primary-btn" onClick={assignToMe}>
+            Assign To Me
+          </button>
         </div>
       )}
-
-      <hr />
 
       {/* COMMENTS */}
-      <h3>Comments</h3>
+      <div className="comments-section">
+        <h2>Comments</h2>
 
-      {comments.map((c) => (
-        <div
-          key={c.id}
-          style={{
-            border: "1px solid #ddd",
-            padding: 10,
-            marginBottom: 10,
-          }}
-        >
-          <p>{c.body}</p>
-          <small>{c.created_at}</small>
-        </div>
-      ))}
+        {comments.length === 0 ? (
+          <p>No comments yet.</p>
+        ) : (
+          comments.map((c) => (
+            <div key={c.id} className="comment-card">
+              <p>{c.body}</p>
 
-      <hr />
+              <small>{c.created_at}</small>
+            </div>
+          ))
+        )}
+      </div>
 
       {/* ADD COMMENT */}
-      <h3>Add Comment</h3>
+      <div className="add-comment-box">
+        <h2>Add Comment</h2>
 
-      <textarea
-        value={commentBody}
-        onChange={(e) => setCommentBody(e.target.value)}
-        style={{ width: "100%" }}
-      />
+        <textarea
+          value={commentBody}
+          onChange={(e) => setCommentBody(e.target.value)}
+          placeholder="Write your comment..."
+        />
 
-      <br />
-      <button onClick={handleAddComment}>Add Comment</button>
+        <button
+          className="primary-btn"
+          onClick={handleAddComment}
+        >
+          Add Comment
+        </button>
+      </div>
     </div>
   );
 }

@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
+import "./Register.css";
+
+import logo from "../assets/lspu_logo.png";
+
 function Register() {
   const navigate = useNavigate();
 
@@ -9,7 +13,9 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleRegister = async () => {
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -26,51 +32,52 @@ function Register() {
     }
 
     console.log(data);
+
     alert("Registered successfully!");
 
     navigate("/");
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Register</h1>
+    <div className="register-container">
+      <div className="register-card">
+        <img src={logo} alt="Logo" className="register-logo" />
 
-      <input
-        type="text"
-        placeholder="Full Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
+        <h1 className="system-title">
+          IT Ticketing & Support Management
+        </h1>
 
-      <br />
-      <br />
+        <h2>Create Account</h2>
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+        <form onSubmit={handleRegister} className="register-form">
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-      <br />
-      <br />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-      <br />
-      <br />
+          <button type="submit">Register</button>
+        </form>
 
-      <button onClick={handleRegister}>Register</button>
-
-      <br />
-      <br />
-
-      <Link to="/">Already have an account? Login</Link>
+        <p className="login-text">
+          Already have an account? <Link to="/">Login</Link>
+        </p>
+      </div>
     </div>
   );
 }
