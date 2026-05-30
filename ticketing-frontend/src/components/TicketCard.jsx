@@ -1,11 +1,10 @@
 import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router-dom";
 
-export default function TicketCard({ ticket, refresh }) {
+export default function TicketCard({ ticket, refresh, role }) {
   const navigate = useNavigate();
 
   // const handleDelete = async (e) => {
-  //   // prevents card click when button clicked
   //   e.stopPropagation();
 
   //   const session = await supabase.auth.getSession();
@@ -38,8 +37,6 @@ export default function TicketCard({ ticket, refresh }) {
       <p>Status: {ticket.status}</p>
 
       <p>Priority: {ticket.priority}</p>
-
-      {/* <button onClick={handleDelete}>Close Ticket</button> */}
     </div>
   );
 }

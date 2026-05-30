@@ -31,9 +31,10 @@ class SupabaseAuth
         }
 
         // Attach user to request
-        $request->merge([
-            'user_id' => $payload['sub']
-        ]);
+       $request->merge([
+    'user_id' => $payload['sub'],
+    'role' => $payload['user_metadata']['role'] ?? 'user'
+]);
 
         return $next($request);
     }
