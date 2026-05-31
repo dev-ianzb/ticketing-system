@@ -20,6 +20,7 @@ export default function TicketDetails() {
 
   const [staff, setStaff] = useState([]);
 
+  // LOAD USER ROLE
   useEffect(() => {
     const loadRole = async () => {
       const { data } = await supabase.auth.getUser();
@@ -32,19 +33,21 @@ export default function TicketDetails() {
     loadRole();
   }, []);
 
+  // FETCH STAFF
   useEffect(() => {
-    if (role !== "admin") return;
-
     const fetchStaff = async () => {
       const session = await supabase.auth.getSession();
 
       const token = session.data.session.access_token;
 
-      const res = await fetch("http://localhost:8000/api/users/it-staff", {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const res = await fetch(
+        "http://localhost:8000/api/users/it-staff",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       const data = await res.json();
 
@@ -52,13 +55,15 @@ export default function TicketDetails() {
     };
 
     fetchStaff();
-  }, [role]);
+  }, []);
 
+  // FETCH TICKET + COMMENTS
   const fetchTicket = async () => {
     const session = await supabase.auth.getSession();
 
     const token = session.data.session.access_token;
 
+    // FETCH TICKET
     const ticketRes = await fetch(
       `http://localhost:8000/api/tickets/${id}`,
       {
@@ -76,6 +81,7 @@ export default function TicketDetails() {
     setPriority(ticketData.priority || "");
     setAssignedTo(ticketData.assigned_to || "");
 
+    // FETCH COMMENTS
     const commentsRes = await fetch(
       `http://localhost:8000/api/tickets/${id}/comments`,
       {
@@ -94,7 +100,10 @@ export default function TicketDetails() {
     fetchTicket();
   }, []);
 
+  // ADD COMMENT
   const handleAddComment = async () => {
+    if (!commentBody.trim()) return;
+
     const session = await supabase.auth.getSession();
 
     const token = session.data.session.access_token;
@@ -115,6 +124,7 @@ export default function TicketDetails() {
     fetchTicket();
   };
 
+  // UPDATE TICKET
   const handleUpdateTicket = async () => {
     const session = await supabase.auth.getSession();
 
@@ -138,6 +148,7 @@ export default function TicketDetails() {
     fetchTicket();
   };
 
+  // ASSIGN TO ME
   const assignToMe = async () => {
     const session = await supabase.auth.getSession();
 
@@ -162,7 +173,13 @@ export default function TicketDetails() {
     fetchTicket();
   };
 
-  if (!ticket) return <p className="loading">Loading...</p>;
+  if (!ticket)
+  return (
+    <div className="ticket-loading-container">
+      <div className="ticket-loader"></div>
+      <p className="loading-text">Loading ticket details...</p>
+    </div>
+  );
 
   return (
     <div className="ticket-details-container">
@@ -199,13 +216,18 @@ export default function TicketDetails() {
 
           <div>
             <span>Assigned To</span>
-            <p>{ticket.assigned_to || "Unassigned"}</p>
+
+            <p>
+              {staff.find(
+                (s) => s.id === ticket.assigned_to,
+              )?.full_name || "Unassigned"}
+            </p>
           </div>
         </div>
       </div>
 
       {/* ADMIN CONTROLS */}
-      {role === "admin" && (
+      {role === "admin"  && (
         <div className="admin-panel">
           <h2>Admin Controls</h2>
 
@@ -218,7 +240,9 @@ export default function TicketDetails() {
             >
               <option value="open">Open</option>
 
-              <option value="in_progress">In Progress</option>
+              <option value="in_progress">
+                In Progress
+              </option>
 
               <option value="resolved">Resolved</option>
             </select>
@@ -266,9 +290,12 @@ export default function TicketDetails() {
       )}
 
       {/* IT STAFF */}
-      {role === "it_staff" && (
+      {role === "it_staff" && ticket.assigned_to === null && (
         <div className="assign-box">
-          <button className="primary-btn" onClick={assignToMe}>
+          <button
+            className="primary-btn"
+            onClick={assignToMe}
+          >
             Assign To Me
           </button>
         </div>
@@ -281,13 +308,19 @@ export default function TicketDetails() {
         {comments.length === 0 ? (
           <p>No comments yet.</p>
         ) : (
-          comments.map((c) => (
-            <div key={c.id} className="comment-card">
-              <p>{c.body}</p>
+         comments.map((c) => (
+  <div key={c.id} className="comment-card">
+    <div className="comment-header">
+      <h4>{c.author_name || "Unknown User"}</h4>
 
-              <small>{c.created_at}</small>
-            </div>
-          ))
+      <small>
+        {new Date(c.created_at).toLocaleString()}
+      </small>
+    </div>
+
+    <p>{c.body}</p>
+  </div>
+))
         )}
       </div>
 

@@ -41,7 +41,7 @@ export default function Login() {
       <img src={logo} alt="Logo" className="login-logo" />
 
       <h1 className="system-title">
-        IT Ticketing & Support Management
+        LSPU - ICTS
       </h1>
 
       <h2>Welcome Back</h2>

@@ -44,7 +44,7 @@ function Register() {
         <img src={logo} alt="Logo" className="register-logo" />
 
         <h1 className="system-title">
-          IT Ticketing & Support Management
+          LSPU - ITCS
         </h1>
 
         <h2>Create Account</h2>

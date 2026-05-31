@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
@@ -31,7 +31,6 @@ export default function Dashboard() {
       const user = data.user;
 
       setRole(user?.user_metadata?.role || "user");
-
       setUserId(user?.id);
     };
 
@@ -66,10 +65,10 @@ export default function Dashboard() {
   // LOGOUT
   const handleLogout = async () => {
     await supabase.auth.signOut();
-
     navigate("/");
   };
 
+  // FILTERED DATA
   const userTickets = tickets.filter(
     (ticket) => ticket.created_by === userId,
   );
@@ -82,55 +81,192 @@ export default function Dashboard() {
     (ticket) => ticket.status === "open" && !ticket.assigned_to,
   );
 
+  // ANALYTICS
+  const analytics = useMemo(() => {
+    const totalTickets = tickets.length;
+
+    const openTickets = tickets.filter(
+      (ticket) => ticket.status === "open",
+    ).length;
+
+    const inProgressTickets = tickets.filter(
+      (ticket) => ticket.status === "in_progress",
+    ).length;
+
+    const resolvedTickets = tickets.filter(
+      (ticket) => ticket.status === "resolved",
+    ).length;
+
+    const highPriority = tickets.filter(
+      (ticket) => ticket.priority === "high",
+    ).length;
+
+    const mediumPriority = tickets.filter(
+      (ticket) => ticket.priority === "medium",
+    ).length;
+
+    const lowPriority = tickets.filter(
+      (ticket) => ticket.priority === "low",
+    ).length;
+
+    return {
+      totalTickets,
+      openTickets,
+      inProgressTickets,
+      resolvedTickets,
+      highPriority,
+      mediumPriority,
+      lowPriority,
+    };
+  }, [tickets]);
+
   return (
     <div className="dashboard-layout">
-    {/* SIDEBAR */}
-<div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
-  {/* TOP SECTION */}
-  <div>
-    <button
-      className="collapse-btn"
-      onClick={() => setCollapsed(!collapsed)}
-    >
-      {collapsed ? "☰" : "←"}
-    </button>
+      {/* SIDEBAR */}
+      <div className={`sidebar ${collapsed ? "collapsed" : ""}`}>
+        {/* TOP SECTION */}
+        <div>
+          <button
+            className="collapse-btn"
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            {collapsed ? "☰" : "←"}
+          </button>
 
-    {/* LOGO */}
-    <div className="sidebar-logo-container">
-      <img
-        src={logo}
-        alt="Logo"
-        className="sidebar-logo"
-      />
+          {/* LOGO */}
+          <div className="sidebar-logo-container">
+            <img
+              src={logo}
+              alt="Logo"
+              className="sidebar-logo"
+            />
 
-      {!collapsed && (
-        <>
-          <h2 className="sidebar-title">
-            IT Support
-          </h2>
+            {!collapsed && (
+              <>
+                <h2 className="sidebar-title">
+                  IT Support
+                </h2>
 
-          <p className="sidebar-role">
-            Role: <strong>{role || "Loading..."}</strong>
-          </p>
-        </>
-      )}
-    </div>
-  </div>
+                <p className="sidebar-role">
+                  Role: <strong>{role || "Loading..."}</strong>
+                </p>
+              </>
+            )}
+          </div>
+        </div>
 
-  {/* BOTTOM SECTION */}
-  <button
-    className="logout-btn"
-    onClick={handleLogout}
-  >
-    {collapsed ? "⎋" : "Logout"}
-  </button>
-</div>
+        {/* BOTTOM SECTION */}
+        <button
+          className="logout-btn"
+          onClick={handleLogout}
+        >
+          {collapsed ? "⎋" : "Logout"}
+        </button>
+      </div>
 
       {/* MAIN CONTENT */}
       <div className="dashboard-content">
         <div className="dashboard-header">
           <h1>Dashboard</h1>
         </div>
+
+        {/* ANALYTICS - ONLY ADMIN & IT STAFF */}
+        {(role === "it_staff" || role === "admin") && (
+          <>
+            {/* ANALYTICS SECTION */}
+            <div className="analytics-grid">
+              <div className="analytics-card total-card">
+                <h4>Total Tickets</h4>
+                <h2>{analytics.totalTickets}</h2>
+              </div>
+
+              <div className="analytics-card open-card">
+                <h4>Open</h4>
+                <h2>{analytics.openTickets}</h2>
+              </div>
+
+              <div className="analytics-card progress-card">
+                <h4>In Progress</h4>
+                <h2>{analytics.inProgressTickets}</h2>
+              </div>
+
+              <div className="analytics-card resolved-card">
+                <h4>Resolved</h4>
+                <h2>{analytics.resolvedTickets}</h2>
+              </div>
+            </div>
+
+            {/* PRIORITY ANALYTICS */}
+            <div className="section-card">
+              <h3>Priority Analytics</h3>
+
+              <div className="priority-wrapper">
+                <div className="priority-item">
+                  <span>High Priority</span>
+
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill high"
+                      style={{
+                        width: `${
+                          analytics.totalTickets
+                            ? (analytics.highPriority /
+                                analytics.totalTickets) *
+                              100
+                            : 0
+                        }%`,
+                      }}
+                    ></div>
+                  </div>
+
+                  <strong>{analytics.highPriority}</strong>
+                </div>
+
+                <div className="priority-item">
+                  <span>Medium Priority</span>
+
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill medium"
+                      style={{
+                        width: `${
+                          analytics.totalTickets
+                            ? (analytics.mediumPriority /
+                                analytics.totalTickets) *
+                              100
+                            : 0
+                        }%`,
+                      }}
+                    ></div>
+                  </div>
+
+                  <strong>{analytics.mediumPriority}</strong>
+                </div>
+
+                <div className="priority-item">
+                  <span>Low Priority</span>
+
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill low"
+                      style={{
+                        width: `${
+                          analytics.totalTickets
+                            ? (analytics.lowPriority /
+                                analytics.totalTickets) *
+                              100
+                            : 0
+                        }%`,
+                      }}
+                    ></div>
+                  </div>
+
+                  <strong>{analytics.lowPriority}</strong>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* ADMIN PANEL */}
         {role === "admin" && <AdminPanel />}

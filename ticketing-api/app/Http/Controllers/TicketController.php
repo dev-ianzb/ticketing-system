@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
@@ -7,66 +8,37 @@ use Illuminate\Support\Str;
 
 class TicketController extends Controller
 {
-    // public function index(Request $request)
-    // {
+    public function index(Request $request)
+    {
+        $role = $request->role;
 
-    // $query = Ticket::query()
-    //     ->where('created_by', $request->user_id);
+        // ADMIN
+        if ($role === 'admin') {
 
+            return Ticket::with('assignedUser')->get();
+        }
 
-    // return $query->latest()->get();
+        // IT STAFF
+        if ($role === 'it_staff') {
 
-    // }
-//     public function index(Request $request)
-// {
-//     $query = Ticket::query();
+            return Ticket::with('assignedUser')
+                ->where(function ($query) use ($request) {
 
-//     $role = $request->role;
-//     $userId = $request->user_id;
+                    $query->where('assigned_to', $request->user_id)
+                        ->orWhere(function ($q) {
 
-//     if ($role === 'user') {
-//         $query->where('created_by', $userId);
-//     }
+                            $q->where('status', 'open')
+                                ->whereNull('assigned_to');
+                        });
 
-//     if ($role === 'it_staff') {
-//         $query->where(function ($q) use ($userId) {
-//             $q->where('assigned_to', $userId)
-//               ->orWhere('status', 'open');
-//         });
-//     }
+                })->get();
+        }
 
-//     // admin = no restrictions
-
-//     return $query->latest()->get();
-// }
-public function index(Request $request)
-{
-    $role = $request->role;
-
-    // ADMIN
-    if ($role === 'admin') {
-        return Ticket::all();
+        // REGULAR USER
+        return Ticket::with('assignedUser')
+            ->where('created_by', $request->user_id)
+            ->get();
     }
-
-    // IT STAFF
-    if ($role === 'it_staff') {
-
-        return Ticket::where(function ($query) use ($request) {
-
-            $query->where('assigned_to', $request->user_id)
-                ->orWhere(function ($q) {
-                    $q->where('status', 'open')
-                      ->whereNull('assigned_to');
-                });
-
-        })->get();
-    }
-
-    return Ticket::where(
-        'created_by',
-        $request->user_id
-    )->get();
-}
 
     public function store(Request $request)
     {
@@ -92,44 +64,50 @@ public function index(Request $request)
 
     public function show($id)
     {
-        return Ticket::findOrFail($id);
+        return Ticket::with('assignedUser')->findOrFail($id);
     }
 
     public function update(Request $request, $id)
-{
-    $ticket = Ticket::findOrFail($id);
+    {
+        $ticket = Ticket::findOrFail($id);
 
-    $role = $request->role;
+        $role = $request->role;
 
-    // ONLY ADMIN OR IT STAFF
-    if (!in_array($role, ['admin', 'it_staff'])) {
-        return response()->json([
-            'message' => 'Unauthorized'
-        ], 403);
+        // ONLY ADMIN OR IT STAFF
+        if (!in_array($role, ['admin', 'it_staff'])) {
+
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        $ticket->update($request->only([
+            'status',
+            'priority',
+            'assigned_to',
+            'category',
+            'title',
+            'description'
+        ]));
+
+        // AUTO RESOLVE TIME
+        if ($request->status === 'resolved') {
+
+            $ticket->resolved_at = now();
+            $ticket->save();
+        }
+
+        return response()->json(
+            Ticket::with('assignedUser')->findOrFail($id)
+        );
     }
-
-    $ticket->update($request->only([
-        'status',
-        'priority',
-        'assigned_to',
-        'category',
-        'title',
-        'description'
-    ]));
-
-    // AUTO RESOLVE TIME
-    if ($request->status === 'resolved') {
-        $ticket->resolved_at = now();
-        $ticket->save();
-    }
-
-    return response()->json($ticket);
-}
 
     public function destroy($id)
     {
         $ticket = Ticket::findOrFail($id);
+
         $ticket->status = 'removed';
+
         $ticket->save();
 
         return response()->json([
@@ -138,17 +116,21 @@ public function index(Request $request)
     }
 
     public function assign(Request $request, $id)
-{
-    $request->validate([
-        'assigned_to' => 'required|uuid'
-    ]);
+    {
+        $request->validate([
+            'assigned_to' => 'required|uuid'
+        ]);
 
-    $ticket = Ticket::findOrFail($id);
+        $ticket = Ticket::findOrFail($id);
 
-    $ticket->assigned_to = $request->assigned_to;
-    $ticket->status = 'in_progress';
-    $ticket->save();
+        $ticket->assigned_to = $request->assigned_to;
 
-    return response()->json($ticket);
-}
+        $ticket->status = 'in_progress';
+
+        $ticket->save();
+
+        return response()->json(
+            Ticket::with('assignedUser')->findOrFail($id)
+        );
+    }
 }
